@@ -4,37 +4,40 @@ import os
 
 # delcarations
 
-junk = ["[", "]", "-", "  ", "_"]
+junk = ["[", "]", "-", "_", "brrip", "dvdrip", "x264", "bdrip", "aac", "etrg", "hdtv", "xvid", "bluray"]
 cwd = os.getcwd()
 
-filenames = os.listdir(cwd)
+def removeDotFiles():
+    """walk directory tree, delete files with filenaming that beings with "." """
 
-for filename in filenames:
+    for root, dirs, files in os.walk(".", topdown=False):
+        for name in files:
+            if name[0] == ".":
+                print("removing: " + os.path.join(root, name))
+                os.remove(os.path.join(root, name))
+
+def cleanThatUp(filename):
 
     print "\n", "*"*35
-    
+
     tempname = filename.split('.')
 
     if len(tempname) > 1:
         extension = tempname.pop()
 
         temptempname = ' '.join(tempname)
-        
+
         filetuple = (temptempname, extension)
 
         print "filename = ", filename
-        print "temptempname = ", temptempname
-        print "extension = ", extension
         print "filetuple = ", filetuple
 
     else:
         filetuple = (filename, "Null")
-        
+
         print "filename = ", filename
         print "This file doesn't seem to have an extension."
         print "filetuple = ", filetuple
-
-#    raw_input("Hit ctrl-c if this doesn't look right, otherwise, let's go!")
 
     lowername = filetuple[0].lower()
 
@@ -42,13 +45,43 @@ for filename in filenames:
         if j in lowername:
             lowername = lowername.replace(j, ' ')
 
-            print "\n***FOUND --> %s <-- therefore:" % j, 
-            print filename, " --> ", lowername, "\n"
-            print "AND new filename is: ", lowername + "." + filetuple[1]
-            
+            print "[ FOUND %s ]" % j, 
+
         else:
-            print "NO --> '%s' <--" % j,
+            print "[ %s ]" % j,
+
+    while '  ' in lowername:
+        lowername = lowername.replace('  ', ' ')
+        print "squashing white space...",
+
+# and now to rename
+
+    if filetuple[1] == "Null":
+        newname = lowername
+        print "\n\n--->\t", os.path.join(root, filename) 
+        print "--->\t", os.path.join(root, newname)
+        os.rename(os.path.join(root, filename), os.path.join(root, newname))
+
+    else:
+        newname = lowername + "." + filetuple[1]
+        print "\n\n>\t", os.path.join(root, filename)
+        print ">\t", os.path.join(root, newname)
+        os.rename(os.path.join(root, filename), os.path.join(root, newname))
+
+
+# ok go runtime.
     
-#    os.rename(filename, newname)
+removeDotFiles()
+
+for root, dirs, files in os.walk(".", topdown=False):
+
+    for filename in dirs:
+        cleanThatUp(filename)
+
+    for filename in files:
+        cleanThatUp(filename)
 
 
+
+
+            
